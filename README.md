@@ -56,6 +56,9 @@ To bulk join them, I need to enable the PSRemoting on the PCS, set the network p
 
 <img width="938" height="541" alt="image" src="https://github.com/user-attachments/assets/1d95523e-f5e3-404a-948f-b78a4f310278" />
 
+<img width="650" height="439" alt="image" src="https://github.com/user-attachments/assets/7f2e501a-6670-49ed-b65b-b3be208e5859" />
+
+
 Now that the PCs were created, the next goal on the agenda was to create 60 different users in AD. For this I created another bulk script that imported this information from a CSV file.
 
 <img width="722" height="415" alt="image" src="https://github.com/user-attachments/assets/48fe647d-38e7-4e2f-a39f-3ed283592e99" />
