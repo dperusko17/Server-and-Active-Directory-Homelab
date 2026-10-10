@@ -162,7 +162,20 @@ Now that we have the boundary group, boot image, and operating system image crea
 <img width="758" height="676" alt="Domain64" src="https://github.com/user-attachments/assets/2a785e6a-d376-45f2-a6b3-2d48d5fb5632" />
 
 
-Once the Task Sequence is created, all that is left is to begin the imaging process. First, we need to create general virtual machines in VMWare. MECM needs a hardware MAC address and computer name to know what to image.  
+Once the Task Sequence is created, there is one more step left before we begin the imaging process. First, we need to create general virtual machines in VMWare. MECM needs a hardware MAC address and computer name to know what to image. We can locate the MAC address of the virtual computer by going to VMWare Workstation --> Settings --? Network Adapter --> Advanced. Once we have the MAC address of the VM, we can import the VM into MECM by going to Assets and Compliance --> Import Computer Information. It is here where we can put what we want the name of the computer to be and what the MAC address of the VM is. We can also import a file, which would allow us to import VMs into MECM in bulk. We will get to that later. For now, let's import the three VMs we created.
+
+<img width="427" height="425" alt="Domain86" src="https://github.com/user-attachments/assets/72ff3c54-4cdb-4e56-aeb8-39c4b03a4c1d" />
+<img width="663" height="138" alt="image" src="https://github.com/user-attachments/assets/0f65e2a9-f4b3-4d4f-9183-0f7830ac3cd7" />
+<img width="693" height="600" alt="image" src="https://github.com/user-attachments/assets/e009f7a6-3394-4881-a244-1b917e83d8bc" />
+<img width="746" height="570" alt="image" src="https://github.com/user-attachments/assets/c1adf30e-11b1-4260-a5ca-cf1e3b1fd343" />
+<img width="692" height="596" alt="image" src="https://github.com/user-attachments/assets/57585db1-3888-4804-bd33-20200d8f664c" />
+
+We should be all set! Now, we simply need to boot up one of our newly created VMs to firmware and choose to boot from PXE. Note that we want to make sure we allow PXE booting from our MECM.
+
+<img width="770" height="655" alt="image" src="https://github.com/user-attachments/assets/920fbe83-fabc-48bb-a4f8-8a9224a6db92" />
+<img width="673" height="628" alt="Domain71" src="https://github.com/user-attachments/assets/5a63ce76-319e-4d9a-acbc-b2778e07d697" />
+
+From here, MECM should do the rest, and we should have three newly created and imaged VMs. 
 
 <img width="1022" height="763" alt="Domain77" src="https://github.com/user-attachments/assets/77fcae46-3ec1-460e-b005-99da17763eea" />
 <img width="1027" height="847" alt="Domain79" src="https://github.com/user-attachments/assets/dda5c344-928d-42af-bc99-d0a07ae2447a" />
