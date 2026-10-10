@@ -222,7 +222,8 @@ Ensure the kiosks never go to sleep, lock themselves automatically, or prompt us
 	Path: Computer Configuration > Policies --> Administrative Templates --> System --> Power Management --> Sleep Settings
 	Setting: Specify the system sleep timeout (plugged in) --> Set to Enabled and type 0 (Never sleep).
 
-	Once this is all set, the computer should automatically log in to this account upon bootup, browse to Google Chrome's home page automatically, and display only the webpage so that the user cannot access the Start Menu or Task Manager.
+
+Once this is all set, the computer should automatically log in to this account upon bootup, browse to Google Chrome's home page automatically, and display only the webpage so that the user cannot access the Start Menu or Task Manager.
 
 <img width="1021" height="762" alt="image" src="https://github.com/user-attachments/assets/c7a291ff-7e11-436a-b817-8023cdb48a74" />
 
