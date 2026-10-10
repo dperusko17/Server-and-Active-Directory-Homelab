@@ -70,6 +70,7 @@ For security purposes, I used Read-Host and -AsSecureString so that the password
 
 <img width="231" height="530" alt="image" src="https://github.com/user-attachments/assets/12532a6f-9610-4a05-814f-34758a59e373" />
 
+
 To verify that the users were created, we can simply check the respective OUs in Active Directory. In a production environment, these users would be tied to several groups that have GPOs tied to that. In this way, user's access can be controlled to only have access to what they need to do their jobs. This is called 'The Principle of Least Privilege' in the security world.
 
 <img width="434" height="438" alt="image" src="https://github.com/user-attachments/assets/aa8754e3-c8ae-4778-9fa7-f528af5faa40" />
@@ -78,6 +79,43 @@ To verify that the users were created, we can simply check the respective OUs in
 
 <img width="421" height="427" alt="image" src="https://github.com/user-attachments/assets/e1ab3502-640a-4f14-96a3-c267f8bbd0d1" />
 
+To setup the database, we first need to download SQL2022 ISO. Once downloaded, we need to mount the ISO file and run the setup.
+Picture
+In the setup, we select New SQL Server standalone installation. Let the program run a check and if everything comes back okay, then we can move to the next step, which is selecting the instance features.
+Picture
+Picture
+In this screen, we want to select to enable Database Engine Services. We can name the database instance with the default configuration. In the next screen, we will setup the server configuration. We can keep the defaults here. We will change them later under the SQL Server Configuration 2022. 
+Picture
+From there, we can continue to click next and it will install the database. Once it has installed the database, we should have SMSS Configuration Manager 2022 and SQL Server Configuration 2022. First, let’s open SQL Server Configuration 2022 and edit a couple of the settings. First, under SQL Services, we want to change the ‘Log On As’ under SQL Server and SQL Server Agent to the sql_service account we created in AD for this very purpose. We would also want to enable TCP/IP.
+Picture
+For SMSS Configuration Manager 2022, first we need to login under the account that has admin privileges to the database. In this case, that is the SQLAdmin account. We will opt to trust the certificate. Once logged in, we will need to do a few things. First, let’s expand the database and then the security option, then logins. We want to ensure that sql_service, SQLAdmin, and our MECMServer is added to the logins with administrator privileges to the database. This is to ensure the database and the MECMServer can communicate with each other properly. To add the computer DanMECMServer, we will need to add a $ before it, so $DanMECMServer. The database won’t add the computer correctly without doing this.
+Picture
+Picture
 
+Now we can configure our MECM Server. First, let’s ensure that our SQLAdmin account has admin privileges to the MECMServer as well. In real world environments, we would also have a separate account to have admin rights to the MECM server only. Now, we will download and install the Microsoft Endpoint Configuration Manager. We will need to fulfill several prerequisites before we can begin to install MECM. In Server Manager, the following Roles and Features will first need to be installed:
+•	Web Server (IIS): Required for management points and site communication. Include these role services under IIS:
+o	Common HTTP Features (Default Document, Static Content)
+o	Health and Diagnostics (HTTP Logging, Logging Tools)
+o	Performance (Static Content Compression)
+o	Security (Request Filtering, Windows Authentication)
+o	Application Development (.NET Extensibility 3.5 and 4.6/4.8, ASP.NET 3.5 and 4.5/4.8, ISAPI Extensions, ISAPI Filters)
+o	Management Tools (IIS Management Console) [1]
+•	BITS (Background Intelligent Transfer Service): Enables reliable downloading of files.
+•	Remote Differential Compression (RDC): Required for signature creation and package updates.
+•	.NET Framework 4.8: Required for site servers, site systems, and the console (newer versions of Configuration Manager mandate .NET 4.8). [1]
+•	Microsoft ODBC Driver for SQL Server: A required driver installed on the site server.
+•	SQL Server (Separate or Local)
+•	Windows Server Update Services (WSUS): To roll out Windows update across the environment.
 
+Since that is now out of the way, we can run the setup. Upon running the installation setup wizard, we enter the FQDN of our MECM server, the folder paths pointing to the database, the site code we want to use, etc. Typically, MECM takes around 15-45 minutes to install.
+Now that MECM is installed, we need to set up the environment. Let’s first get the current PCs in our environment communicating with the MECM server. To do this, we want to run a discovery. To run the discovery, we will select Administration  Hierarchy Configuration  Discovery Methods from the left pane and then select ‘Run Full Discovery Now.’ You can then specify what domains or OUs you want to discover devices from. We will select our danp.lab domain. This can take a varying amount of time to complete, depending on your environment. Once it is complete, your existing assets should be populated in the ‘Assets and Compliance’  ‘Devices’
 
+Next, a boundary group will be created. This will allow us to install software from the MECM Server to the existing endpoints as well as imaging new endpoints. Navigate to Administration  Hierarchy Configuration  Boundary Groups to create a new boundary group. You will need to enter the name and the IP(s) of the subnet(s) in the domain that you want to use for this. 
+
+A boot image will also need to be created for new endpoints to boot to the image. We’ll go to Software Library  Operating Systems  Boot Images. The winpe.wim file will be copied into the MECM source content directory. To navigate to the boot image, the path is Software Library  Operating Systems  Boot Images  Add Boot Image. On the Data Source window, we will enter the pathway manually to the file we copied earlier. This will create the boot image. 
+
+Next an Operating System image must be declared. An ISO file will be needed and mounted. Within that ISO and inside of the Operating System Image Wizard, browse to the install.wim file. 
+
+Now that we have the boundary group, boot image, and operating system image created, it is time to create a task sequence. Here we are choosing to install an existing image package and referencing the Operating System Image we created earlier. Under Configure Network, we’ll select to join the domain of danp.lab for the task sequence. 
+
+Once the Task Sequence is created, all that is left is to begin the imaging process. First, we need to create general virtual machines in VMWare. MECM needs a hardware MAC address and computer name to know what to image.  
