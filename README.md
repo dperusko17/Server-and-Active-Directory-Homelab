@@ -220,6 +220,11 @@ Ensure the kiosks never go to sleep, lock themselves automatically, or prompt us
 	• Path: Computer Configuration > Policies --> Administrative Templates --> System --> Power Management --> Sleep Settings
 	• Setting: Specify the system sleep timeout (plugged in) --> Set to Enabled and type 0 (Never sleep).
 
+	Once this is all set, the computer should automatically log in to this account upon bootup, browse to Google Chrome's home page automatically, and display only the webpage so that the user cannot access the Start Menu or Task Manager.
+
+	<img width="1021" height="762" alt="image" src="https://github.com/user-attachments/assets/c7a291ff-7e11-436a-b817-8023cdb48a74" />
+
+
 Now we set all this at a local PC level, but in an enterprise environment, it would be much more efficient to set the group policy via the MECM server and have it automatically applied to devices in bulk. In this way, we could have several different group policies that are tied to specific groups and OUs in Active Directory and our MECM Task Sequences. In this manner, we would have full control over the security and privileges of our PCs and users, even in a large enterprise environment. To set this, we can create the group policy the same way we did on our local PC, but just on our domain server instead. We will declare the OUs, groups, and computers affected through the scope. 
 
 <img width="870" height="490" alt="image" src="https://github.com/user-attachments/assets/7c66bcca-4b48-4279-b286-388d7afe0966" />
@@ -246,6 +251,7 @@ We want to ensure that we have ComputerName and MAC Address selected from the co
 <img width="689" height="358" alt="image" src="https://github.com/user-attachments/assets/842ecf9a-b545-4921-b89d-0a90a29556e5" />
 <img width="688" height="604" alt="image" src="https://github.com/user-attachments/assets/331f9010-ef5f-4bd1-9b40-65f5a932bbd7" />
 <img width="694" height="605" alt="image" src="https://github.com/user-attachments/assets/75c13163-ccbc-48f5-a91c-0b19fce45cb2" />
+
 <img width="238" height="63" alt="image" src="https://github.com/user-attachments/assets/0e42fb75-ccce-4b24-a440-793ee192d1bd" />
 
 
