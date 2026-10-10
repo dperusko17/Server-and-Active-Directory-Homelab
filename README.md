@@ -251,8 +251,4 @@ We want to ensure that we have ComputerName and MAC Address selected from the co
 <img width="689" height="358" alt="image" src="https://github.com/user-attachments/assets/842ecf9a-b545-4921-b89d-0a90a29556e5" />
 <img width="688" height="604" alt="image" src="https://github.com/user-attachments/assets/331f9010-ef5f-4bd1-9b40-65f5a932bbd7" />
 <img width="694" height="605" alt="image" src="https://github.com/user-attachments/assets/75c13163-ccbc-48f5-a91c-0b19fce45cb2" />
-
-
-
-
-<img width="238" height="63" alt="image" src="https://github.com/user-attachments/assets/0e42fb75-ccce-4b24-a440-793ee192d1bd" />
+<img width="691" height="68" alt="image" src="https://github.com/user-attachments/assets/c8a3d3f5-9ba5-4337-9ee2-e46e8ed4fb6e" />
