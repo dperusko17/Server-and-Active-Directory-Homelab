@@ -180,3 +180,72 @@ From here, MECM should do the rest, and we should have three newly created and i
 <img width="1022" height="763" alt="Domain77" src="https://github.com/user-attachments/assets/77fcae46-3ec1-460e-b005-99da17763eea" />
 <img width="1027" height="847" alt="Domain79" src="https://github.com/user-attachments/assets/dda5c344-928d-42af-bc99-d0a07ae2447a" />
 
+Being that we are imaging a kiosk, we want it to behave as such. Hence, there are certain settings we need to configure. For one, we need to configure an autologin account. Since this is emulating what would be a publicly accessible device in an environment, we want to limit the privileges and lock this down as much as possible. We will configure group policy on the computer account and the user account to lock this kiosk down. First, let's go to the registry and navigate to the Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon hive. We will want to ensure the strings AutoAdminLogon and ForceAutoLogon are present and set to 1. If they are not present, we will need to create them. Two additional strings of DefaultUsername and DefaultPassword will need created as well. Their values will be set to the username and password of the autologin account. Note that this autologin account will also need to be created in Active Directory with the same username and password you've set in the registry, otherwise it won't work.
+
+<img width="258" height="655" alt="image" src="https://github.com/user-attachments/assets/d613b72c-36a3-47d3-a677-f8cf975bc60e" />
+<img width="401" height="546" alt="image" src="https://github.com/user-attachments/assets/698e100c-3cbe-4928-9aeb-fb7515ba6712" />
+
+Now that we have our autologin account created, we can configure group policy settings on the kiosk. First thing is configuring the user account to automatically navigate to a site upon bootup. For test purposes, we'll just have it go to Google Chrome's home page. For this, we'll navigate to User Configuration --> Policies --> Administrative Templates --> System in the Group Policy Editor. For the interface file name, we will enter "C:\Program Files\Google\Chrome\Application\chrome.exe" --kiosk https://www.google.com. The first part navigates to and launches the browser. The --kiosk tells the Chrome browser to launch in full-screen kiosk mode. Finally, the last part is the URL of Chrome's home page. Naturally, we'll want to make sure this policy is enabled.
+
+<img width="1468" height="528" alt="image" src="https://github.com/user-attachments/assets/56f66f28-94fe-41de-a55f-be237c59749e" />
+
+Other policies for the kiosk include preventing users from using hidden shortcuts to break out of the kiosk environment or accessing task manager.
+• Disable Task Manager:
+	• Path: User Configuration --> Policies --> Administrative Templates --> System --> Ctrl+Alt+Del Options
+	• Setting: Remove Task Manager --> Set to Enabled.
+• Block Windows Registry Tools:
+	• Path: User Configuration --> Policies --> Administrative Templates --> System
+	• Setting: Prevent access to registry editing tools (regedit) --> Set to Enabled.
+• Disable Command Prompt / PowerShell:
+	• Path: User Configuration --> Policies > Administrative Templates --> System
+	• Setting: Prevent access to the command prompt --> Set to Enabled.
+
+3. File System & Storage Lockdown
+
+Stop users from plugging in malicious USB drives or browsing the local C: drive folders to look at your MECM client configuration directory.
+• Hide Local Drives:
+	• Path: User Configuration --> Policies --> Administrative Templates --> Windows Components --> File Explorer
+	• Setting: Hide these specified drives in My Computer -> Set to Enabled and choose Restrict A, B, C and D drives.
+• Prevent USB / Removable Media Insertion:
+	• Path: Computer Configuration --> Policies --> Administrative Templates --> System --> Removable Storage Access
+	• Setting: All Removable Storage classes: Deny all access --> Set to Enabled.
+
+4. Automated Maintenance & Power Properties
+
+Ensure the kiosks never go to sleep, lock themselves automatically, or prompt users to install random Windows updates that interfere with MECM schedules.
+• Disable Screen Locking:
+	• Path: Computer Configuration > Policies --> Administrative Templates > Control Panel > Personalization
+	• Setting: Do not display the lock screen --> Set to Enabled.
+• Disable Power Sleep Timeouts:
+	• Path: Computer Configuration > Policies --> Administrative Templates --> System --> Power Management --> Sleep Settings
+	• Setting: Specify the system sleep timeout (plugged in) --> Set to Enabled and type 0 (Never sleep).
+
+Now we set all this at a local PC level, but in an enterprise environment, it would be much more efficient to set the group policy via the MECM server and have it automatically applied to devices in bulk. In this way, we could have several different group policies that are tied to specific groups and OUs in Active Directory and our MECM Task Sequences. In this manner, we would have full control over the security and privileges of our PCs and users, even in a large enterprise environment. To set this, we can create the group policy the same way we did on our local PC, but just on our domain server instead. We will declare the OUs, groups, and computers affected through the scope. 
+
+<img width="870" height="490" alt="image" src="https://github.com/user-attachments/assets/7c66bcca-4b48-4279-b286-388d7afe0966" />
+
+Through this, anything that is in the Kiosk OU or is a member of the Kiosk Lockdown Group will have this group policy applied to them. To ensure this is applied to a PC upon image, we can edit the task sequence in the MECM Server to include a gpupdate /force and a restart. So long as we add it to the OU that has the group policy we want, it will be applied upon imaging.
+
+<img width="929" height="549" alt="image" src="https://github.com/user-attachments/assets/5a3f08f3-c285-474d-8f8e-4dcadcb3e943" />
+<img width="933" height="543" alt="image" src="https://github.com/user-attachments/assets/2fec2849-5043-4f7d-8ee2-64e3140ca763" />
+
+If we import computers using a file, we could have a file with thousands of PCs imported into MECM and then image them all with our various group policies declared per OU in Group Policy Editor. This would allow us to image and declare policy for our devices at scale.
+
+<img width="929" height="421" alt="image" src="https://github.com/user-attachments/assets/f1aaeeac-cfd2-4b82-bf5d-a0ba288c4ac4" />
+
+To do this, we must first create the file as a .csv. This can be through Excel or notepad. It is imperative to ensure it is in the correct format, or it won't be accepted by MECM.
+
+<img width="233" height="114" alt="image" src="https://github.com/user-attachments/assets/b033d222-6d4d-4664-bbda-cbfbaa636cc4" />
+
+Now that the file is created, we can go back to 'Import Computer Information' and this time select 'Import computers using a file.'
+
+<img width="682" height="200" alt="image" src="https://github.com/user-attachments/assets/90479bbb-d2d5-456e-8363-6d8584d8e8a5" />
+
+We want to ensure that we have ComputerName and MAC Address selected from the columns. From here, we simply import the file and viola, the computers are now added to MECM and we can image them through the MECM server with the group policy applied, provided we select the correct task sequence to place it into the correct OU upon imaging.
+
+<img width="689" height="358" alt="image" src="https://github.com/user-attachments/assets/842ecf9a-b545-4921-b89d-0a90a29556e5" />
+<img width="688" height="604" alt="image" src="https://github.com/user-attachments/assets/331f9010-ef5f-4bd1-9b40-65f5a932bbd7" />
+<img width="694" height="605" alt="image" src="https://github.com/user-attachments/assets/75c13163-ccbc-48f5-a91c-0b19fce45cb2" />
+<img width="238" height="63" alt="image" src="https://github.com/user-attachments/assets/0e42fb75-ccce-4b24-a440-793ee192d1bd" />
+
+
