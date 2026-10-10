@@ -79,18 +79,38 @@ To verify that the users were created, we can simply check the respective OUs in
 
 <img width="421" height="427" alt="image" src="https://github.com/user-attachments/assets/e1ab3502-640a-4f14-96a3-c267f8bbd0d1" />
 
-To setup the database, we first need to download SQL2022 ISO. Once downloaded, we need to mount the ISO file and run the setup.
-Picture
-In the setup, we select New SQL Server standalone installation. Let the program run a check and if everything comes back okay, then we can move to the next step, which is selecting the instance features.
-Picture
-Picture
+Earlier, we had created endpoints through a combination of VM snapshots and cloning, combined with a powershell script. However, we could deploy a more efficient environment for mass deployment and endpoint management through the tool called Microsoft Endpoint Configuration Manager, or MECM for short. To setup MECM, we will need a domain server, a database server, and of course the MECM server.
+On the domain server, we will need to extend the Active Directory schema so that it can communicate with the MECM Server. We can do this by navigating to the …\SMSS\Bin pathway in the command prompt through the cd (current directory) command and then running extadsch.exe
+
+<img width="894" height="116" alt="image" src="https://github.com/user-attachments/assets/c50648e3-34c6-4291-9fc4-92c7b9d175c6" />
+
+We will also want to create an account for the administration of the database server and the MECM server. In this lab, I created an account called SQLAdmin for both and ensured it had admin rights to the MECM Server and SQL Server. However, in a real-world environment, for security purposes, you would want two separate accounts. I also created an account called sql_service for certain services on the database to use to run.
+
+<img width="813" height="30" alt="image" src="https://github.com/user-attachments/assets/21175d24-ead2-4c33-bd7b-41cb9dd7625b" />
+<img width="575" height="69" alt="image" src="https://github.com/user-attachments/assets/c606b07d-da27-4a3f-ab3f-de75087cbf5f" />
+
+To setup the database, we first need to download SQL2022 ISO. Once downloaded, we need to mount the ISO file and run the setup. In the setup, we select New SQL Server standalone installation. Let the program run a check and if everything comes back okay, then we can move to the next step, which is selecting the instance features.
+
+<img width="779" height="590" alt="Database1" src="https://github.com/user-attachments/assets/b36faebf-b52d-4b3d-b8a9-117da398b481" />
+<img width="801" height="702" alt="Database2" src="https://github.com/user-attachments/assets/a5ef9991-1771-4df3-b52a-22407264401e" />
+
 In this screen, we want to select to enable Database Engine Services. We can name the database instance with the default configuration. In the next screen, we will setup the server configuration. We can keep the defaults here. We will change them later under the SQL Server Configuration 2022. 
-Picture
+
+<img width="802" height="697" alt="Database3" src="https://github.com/user-attachments/assets/03388211-de5c-45b7-abc9-3e19b9b43af2" />
+<img width="800" height="702" alt="Database4" src="https://github.com/user-attachments/assets/609661bb-6967-4b05-b43a-9508ea85e641" />
+<img width="803" height="704" alt="Database5" src="https://github.com/user-attachments/assets/995b187f-2993-4276-b6b5-f98c353e4f29" />
+
 From there, we can continue to click next and it will install the database. Once it has installed the database, we should have SMSS Configuration Manager 2022 and SQL Server Configuration 2022. First, let’s open SQL Server Configuration 2022 and edit a couple of the settings. First, under SQL Services, we want to change the ‘Log On As’ under SQL Server and SQL Server Agent to the sql_service account we created in AD for this very purpose. We would also want to enable TCP/IP.
-Picture
+
+<img width="840" height="89" alt="Database6" src="https://github.com/user-attachments/assets/39525c4e-836d-40bc-b53a-dadfe4986269" />
+<img width="534" height="189" alt="Database7" src="https://github.com/user-attachments/assets/b97f219c-67e5-47a7-9c24-35207e61d497" />
+
 For SMSS Configuration Manager 2022, first we need to login under the account that has admin privileges to the database. In this case, that is the SQLAdmin account. We will opt to trust the certificate. Once logged in, we will need to do a few things. First, let’s expand the database and then the security option, then logins. We want to ensure that sql_service, SQLAdmin, and our MECMServer is added to the logins with administrator privileges to the database. This is to ensure the database and the MECMServer can communicate with each other properly. To add the computer DanMECMServer, we will need to add a $ before it, so $DanMECMServer. The database won’t add the computer correctly without doing this.
-Picture
-Picture
+
+<img width="508" height="712" alt="Database11" src="https://github.com/user-attachments/assets/0a480249-79bf-49fc-8054-566cfe876a5b" />
+<img width="722" height="656" alt="Database8" src="https://github.com/user-attachments/assets/10db0955-cab6-4757-9e15-649b81c6724d" />
+<img width="723" height="655" alt="Database9" src="https://github.com/user-attachments/assets/1aa3c0a5-79f4-4a7b-ae41-c17530e4b47d" />
+<img width="267" height="274" alt="Database10" src="https://github.com/user-attachments/assets/464131ab-f3ed-4a67-9eea-0e308f452f34" />
 
 Now we can configure our MECM Server. First, let’s ensure that our SQLAdmin account has admin privileges to the MECMServer as well. In real world environments, we would also have a separate account to have admin rights to the MECM server only. Now, we will download and install the Microsoft Endpoint Configuration Manager. We will need to fulfill several prerequisites before we can begin to install MECM. In Server Manager, the following Roles and Features will first need to be installed:
 •	Web Server (IIS): Required for management points and site communication. Include these role services under IIS:
@@ -108,14 +128,42 @@ o	Management Tools (IIS Management Console) [1]
 •	Windows Server Update Services (WSUS): To roll out Windows update across the environment.
 
 Since that is now out of the way, we can run the setup. Upon running the installation setup wizard, we enter the FQDN of our MECM server, the folder paths pointing to the database, the site code we want to use, etc. Typically, MECM takes around 15-45 minutes to install.
+
+<img width="741" height="566" alt="Domain35" src="https://github.com/user-attachments/assets/98e9eda6-0397-4643-bd59-df177b26a598" />
+<img width="846" height="751" alt="Domain41" src="https://github.com/user-attachments/assets/3702296b-b26c-4203-8c75-e256561212d2" />
+<img width="733" height="559" alt="Domain42" src="https://github.com/user-attachments/assets/0828737e-ba63-4eb9-9f0a-33b19a9c3394" />
+
 Now that MECM is installed, we need to set up the environment. Let’s first get the current PCs in our environment communicating with the MECM server. To do this, we want to run a discovery. To run the discovery, we will select Administration  Hierarchy Configuration  Discovery Methods from the left pane and then select ‘Run Full Discovery Now.’ You can then specify what domains or OUs you want to discover devices from. We will select our danp.lab domain. This can take a varying amount of time to complete, depending on your environment. Once it is complete, your existing assets should be populated in the ‘Assets and Compliance’  ‘Devices’
+
+<img width="1714" height="872" alt="Domain43" src="https://github.com/user-attachments/assets/bca78397-970b-4c76-b323-b020443fc7d5" />
+<img width="509" height="526" alt="Domain44" src="https://github.com/user-attachments/assets/5c38f899-67bc-4218-be06-250bed27ed04" />
+<img width="1036" height="656" alt="Domain45" src="https://github.com/user-attachments/assets/50798d65-c537-44f5-97dc-07071f4bf915" />
+<img width="1002" height="474" alt="Domain46" src="https://github.com/user-attachments/assets/12fc7313-1fa8-47d0-aea7-6f77c39b54fe" />
 
 Next, a boundary group will be created. This will allow us to install software from the MECM Server to the existing endpoints as well as imaging new endpoints. Navigate to Administration  Hierarchy Configuration  Boundary Groups to create a new boundary group. You will need to enter the name and the IP(s) of the subnet(s) in the domain that you want to use for this. 
 
+<img width="632" height="580" alt="Domain50" src="https://github.com/user-attachments/assets/0718b1c9-0ff7-4ef9-bf96-28830bf5d59a" />
+
 A boot image will also need to be created for new endpoints to boot to the image. We’ll go to Software Library  Operating Systems  Boot Images. The winpe.wim file will be copied into the MECM source content directory. To navigate to the boot image, the path is Software Library  Operating Systems  Boot Images  Add Boot Image. On the Data Source window, we will enter the pathway manually to the file we copied earlier. This will create the boot image. 
+
+<img width="695" height="592" alt="Domain57" src="https://github.com/user-attachments/assets/0446ace2-4b0b-487b-a738-6c9214546099" />
 
 Next an Operating System image must be declared. An ISO file will be needed and mounted. Within that ISO and inside of the Operating System Image Wizard, browse to the install.wim file. 
 
+<img width="1113" height="588" alt="Domain59" src="https://github.com/user-attachments/assets/c499872d-c8d5-47b6-a78b-ff8aa2a8aa8e" />
+<img width="689" height="603" alt="Domain60" src="https://github.com/user-attachments/assets/4720f534-79df-4a85-a607-4c71ef0784ba" />
+
+
 Now that we have the boundary group, boot image, and operating system image created, it is time to create a task sequence. Here we are choosing to install an existing image package and referencing the Operating System Image we created earlier. Under Configure Network, we’ll select to join the domain of danp.lab for the task sequence. 
 
+<img width="757" height="679" alt="Domain61" src="https://github.com/user-attachments/assets/4df48f77-6108-4edb-a398-e1e93e6ec1d2" />
+<img width="753" height="678" alt="Domain62" src="https://github.com/user-attachments/assets/482e044b-13dd-4b58-bd02-69e066f937c9" />
+<img width="756" height="677" alt="Domain63" src="https://github.com/user-attachments/assets/66c81ad0-d78f-4d48-a319-ce262c1f65a7" />
+<img width="758" height="676" alt="Domain64" src="https://github.com/user-attachments/assets/2a785e6a-d376-45f2-a6b3-2d48d5fb5632" />
+
+
 Once the Task Sequence is created, all that is left is to begin the imaging process. First, we need to create general virtual machines in VMWare. MECM needs a hardware MAC address and computer name to know what to image.  
+
+<img width="1022" height="763" alt="Domain77" src="https://github.com/user-attachments/assets/77fcae46-3ec1-460e-b005-99da17763eea" />
+<img width="1027" height="847" alt="Domain79" src="https://github.com/user-attachments/assets/dda5c344-928d-42af-bc99-d0a07ae2447a" />
+
