@@ -255,3 +255,26 @@ We want to ensure that we have **ComputerName and MAC Address** selected from th
 <img width="688" height="604" alt="image" src="https://github.com/user-attachments/assets/331f9010-ef5f-4bd1-9b40-65f5a932bbd7" />
 <img width="694" height="605" alt="image" src="https://github.com/user-attachments/assets/75c13163-ccbc-48f5-a91c-0b19fce45cb2" />
 <img width="691" height="68" alt="image" src="https://github.com/user-attachments/assets/c8a3d3f5-9ba5-4337-9ee2-e46e8ed4fb6e" />
+
+Of course, MECM's uses extend far beyond what has been presented here. Another way it helps in managing your enterprise environment is through centralized distribution of applications. Through this tool, you can push application installs to any machine that is online and a client of your MECM Server. To do this, I will install Notepad++ onto DanHRPC3 as an example. To do this, we will first navigate to **Software Library --> Application Management --> Applications.** From there, we initialize the **Create Application Wizard**
+
+<img width="290" height="236" alt="image" src="https://github.com/user-attachments/assets/63aef238-48c6-4be9-b707-b0f5820d0c09" />
+
+We will be manually specifying this as a script rather than a .msi file.
+
+<img width="775" height="694" alt="Domain87" src="https://github.com/user-attachments/assets/9822a0bc-b028-4145-8186-cadb03dea65b" />
+
+For **Content location** under **Create Deployment Types,** we will navigate to a shared folder we had created called Win11ISO. For the full pathway, it will be **\\DANMECMServer.danp.lab\Win11ISO\Notepad++** In the **Installation program**, we specify the application file and add the /S and /noUpdater flags. This will perform a silent installation and /noUpdater ensures updates are not applied automatically. 
+
+<img width="785" height="706" alt="image" src="https://github.com/user-attachments/assets/64220249-5dc2-416c-98ba-b7d5c9eee8c0" />
+
+Once this is created, we right-click the application we created and click **Deploy**. We'll select our MECM Server as the distribution point and choose to distribute it to DanHRPC3. Note that from the Application we created, it can only be deployed to a collection, not an individual machine. So to get around this, a collection set for just DanHRPC3 had to be created. Once we deploy the application, Notepad++ should now show up in our Software Center on DANHRPC3 and on our list of applications on the computer itself. Note that installations can also be scheduled for specific times in MECM so that you're only installing applications during an organization's downtime or maintenance window, for example.
+
+<img width="1184" height="443" alt="image" src="https://github.com/user-attachments/assets/36452ca0-ae01-4c45-81e7-614c53f9a217" />
+<img width="694" height="355" alt="image" src="https://github.com/user-attachments/assets/92daac39-6a24-4523-bbae-350a277c7a64" />
+
+So, there you have it! MECM is an incredibly versatile and useful tool for deploying and managing endpoints, especially in a large enterprise environment. It can save you loads of time compared to working on PCs manually or even remoting into them. Although, MECM is also capable of remoting into PCs as well for troubleshooting. It can also run scans from your antivirus, push policy to an imaged PC, collect logs from a PC, send notifications to PCs as well as wake them up. 
+
+
+
+
